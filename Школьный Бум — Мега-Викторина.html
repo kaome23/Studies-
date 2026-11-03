@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьный Бум — Мега Викторина ⚡</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        unbounded: ['Unbounded', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        neonPink: '#FF007A',
+                        neonPurple: '#7B2CBF',
+                        neonCyan: '#00F0FF',
+                        neonGreen: '#00FF66',
+                        neonYellow: '#FFE600',
+                        neonOrange: '#FF5500',
+                        darkBg: '#0B0819'
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'float-slow': 'float 4s ease-in-out infinite',
+                        'float-fast': 'float 2.5s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 1.5s infinite alternate',
+                        'shake': 'shake 0.4s ease-in-out',
+                        'bounce-pop': 'bouncePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-18px) rotate(8deg)' }
+                        },
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(255, 0, 122, 0.4), 0 0 30px rgba(0, 240, 255, 0.2)' },
+                            '100%': { boxShadow: '0 0 35px rgba(255, 0, 122, 0.9), 0 0 60px rgba(0, 240, 255, 0.6)' }
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%, 60%': { transform: 'translateX(-10px)' },
+                            '40%, 80%': { transform: 'translateX(10px)' }
+                        },
+                        bouncePop: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #080511;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .font-headline {
+            font-family: 'Unbounded', sans-serif;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: rgba(22, 16, 48, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        /* Animated Glowing Gradients */
+        .bg-gradient-glow {
+            background: linear-gradient(135deg, #FF007A 0%, #7B2CBF 50%, #00F0FF 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #FFE600 0%, #FF007A 50%, #00F0FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animated Background Particles Grid */
+        .floating-bg-item {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.25;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        /* Tilt Card Transition */
+        .tilt-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .tilt-card:hover {
+            transform: translateY(-10px) rotateX(4deg) rotateY(-4deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-neonPink selection:text-white">
+
+    <!-- FLOATING BACKGROUND ANIMATED SHAPES -->
+    <div id="bg-floating-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="floating-bg-item text-neonPink text-4xl top-[10%] left-[8%] animate-float-slow"><i class="fa-solid fa-cube"></i></div>
+        <div class="floating-bg-item text-neonCyan text-5xl top-[65%] left-[5%] animate-float-fast"><i class="fa-solid fa-atom"></i></div>
+        <div class="floating-bg-item text-neonYellow text-4xl top-[20%] right-[10%] animate-float-fast"><i class="fa-solid fa-bolt"></i></div>
+        <div class="floating-bg-item text-neonGreen text-5xl top-[75%] right-[12%] animate-float-slow"><i class="fa-solid fa-shapes"></i></div>
+        <div class="floating-bg-item text-neonPurple text-6xl top-[45%] left-[88%] animate-spin-slow"><i class="fa-solid fa-compass"></i></div>
+        <div class="floating-bg-item text-neonOrange text-3xl bottom-[15%] left-[45%] animate-float-slow"><i class="fa-solid fa-star"></i></div>
+        
+        <!-- Big Gradient Blurs -->
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-neonPink/25 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/2 -right-32 w-[500px] h-[500px] bg-neonPurple/30 rounded-full blur-[150px]"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-neonCyan/20 rounded-full blur-[130px]"></div>
+    </div>
+
+    <!-- NAVBAR HEADER -->
+    <header class="relative z-20 p-4 lg:p-6 border-b border-white/10 glass-panel">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            
+            <!-- Logo -->
+            <div onclick="showCategoryScreen()" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-glow p-0.5 shadow-lg group-hover:scale-110 transition-transform">
+                    <div class="w-full h-full bg-darkBg rounded-[14px] flex items-center justify-center text-neonYellow text-2xl">
+                        <i class="fa-solid fa-gamepad animate-pulse"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-headline font-black text-xl sm:text-2xl tracking-tight gradient-text">
+                        ШКОЛЬНЫЙ БУМ
+                    </h1>
+                    <p class="text-[10px] sm:text-xs font-bold text-neonCyan tracking-widest uppercase">
+                        Супер Викторина 🔥
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats Header -->
+            <div class="flex items-center gap-3 sm:gap-6">
+                <!-- Streak Badge -->
+                <div id="header-streak-box" class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-neonOrange/20 to-neonPink/20 border border-neonOrange/40 px-3.5 py-1.5 rounded-full">
+                    <span class="text-xl animate-bounce">🔥</span>
+                    <span class="font-headline text-sm font-bold text-neonYellow"><span id="streak-count">0</span>x</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-300">Комбо</span>
+                </div>
+
+                <!-- Total Score Badge -->
+                <div class="flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-1.5 rounded-full">
+                    <i class="fa-solid fa-trophy text-neonYellow text-sm"></i>
+                    <span id="total-score" class="font-headline font-bold text-sm text-white">0</span>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Очков</span>
+                </div>
+
+                <!-- Audio Toggle -->
+                <button id="sound-btn" onclick="toggleSound()" class="w-10 h-10 rounded-full glass-btn flex items-center justify-center text-neonCyan text-base">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP SCREEN -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 py-8 flex-grow flex items-center justify-center w-full">
+
+        <!-- 1. CATEGORY SELECTION -->
+        <section id="category-screen" class="w-full transition-all duration-500 animate-bounce-pop">
+            
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neonPurple/20 border border-neonPurple/40 text-neonCyan text-xs font-headline font-bold uppercase tracking-wider mb-4">
+                    <i class="fa-solid fa-sparkles text-neonYellow"></i> Выбирай уровень и погнали!
+                </div>
+                <h2 class="font-headline font-black text-3xl sm:text-5xl text-white mb-4 leading-tight">
+                    Готов показать <br class="hidden sm:block"><span class="gradient-text">кто тут самый умный?</span>
+                </h2>
+                <p class="text-slate-300 max-w-lg mx-auto text-sm sm:text-base">
+                    Прокачай свои знания по предметам, набирай безумные комбо и сокрушай вопросы!
+                </p>
+            </div>
+
+            <!-- Subject Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- 1. Math -->
+                <div onclick="startQuiz('math')" class="tilt-card glass-panel p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-indigo-500/30 hover:border-indigo-400">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-indigo-600/30 rounded-full blur-2xl group-hover:bg-indigo-500/50 transition-all"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-3xl text-white mb-5 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">Математика</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">Формулы, логика, геометрия и убойный быстрый счет!</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-cyan-300">
+                        <span>5 Вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">СТАРТ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- 2. Science -->
+                <div onclick="startQuiz('science')" class="tilt-card glass-panel p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-emerald-500/30 hover:border-emerald-400">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-emerald-600/30 rounded-full blur-2xl group-hover:bg-emerald-500/50 transition-all"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-300 flex items-center justify-center text-3xl text-slate-950 mb-5 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-flask"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">Естествознание</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">Физика, биология, химия и невероятные законы природы.</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-emerald-300">
+                        <span>5 Вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">СТАРТ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- 3. History -->
+                <div onclick="startQuiz('history')" class="tilt-card glass-panel p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-amber-500/30 hover:border-amber-400">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-amber-600/30 rounded-full blur-2xl group-hover:bg-amber-500/50 transition-all"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-3xl text-slate-950 mb-5 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-landmark"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">История</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">Эпические битвы, древние цивилизации и великие эпохи.</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-amber-300">
+                        <span>5 Вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">СТАРТ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- 4. Literature -->
+                <div onclick="startQuiz('literature')" class="tilt-card glass-panel p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-rose-500/30 hover:border-rose-400">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-rose-600/30 rounded-full blur-2xl group-hover:bg-rose-500/50 transition-all"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center text-3xl text-white mb-5 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">Литература</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">Легендарные классики, герои книг, цитаты и сюрпризы.</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-pink-300">
+                        <span>5 Вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">СТАРТ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- 5. Geography -->
+                <div onclick="startQuiz('geography')" class="tilt-card glass-panel p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-sky-500/30 hover:border-sky-400">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-sky-600/30 rounded-full blur-2xl group-hover:bg-sky-500/50 transition-all"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-3xl text-white mb-5 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-earth-americas"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">География</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">Страны, загадочные океаны, флаги и редкие места Земли.</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-sky-300">
+                        <span>5 Вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">СТАРТ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- 6. ULTRA MIX -->
+                <div onclick="startQuiz('mix')" class="tilt-card bg-gradient-to-br from-neonPink via-neonPurple to-neonCyan p-6 rounded-3xl cursor-pointer relative overflow-hidden group border-2 border-white/50 shadow-2xl">
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl text-neonYellow mb-5 shadow-lg group-hover:rotate-12 transition-transform">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                    </div>
+                    <h3 class="font-headline font-bold text-2xl text-white mb-2">Сверхскоростной МИКС 🔥</h3>
+                    <p class="text-white/90 text-xs sm:text-sm mb-6 leading-relaxed">Хаос из вопросов всех наук! Готов проверить свою реакцию?</p>
+                    <div class="flex items-center justify-between text-xs font-headline font-black text-neonYellow">
+                        <span>5 МИКС-вопросов</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1">В БОЙ <i class="fa-solid fa-fire"></i></span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 2. QUIZ PLAYING SCREEN -->
+        <section id="quiz-screen" class="w-full hidden transition-all duration-300">
+            <div class="glass-panel rounded-3xl p-6 sm:p-10 relative overflow-hidden">
+                
+                <!-- Top Question Header -->
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <button onclick="showCategoryScreen()" class="glass-btn text-xs font-bold text-slate-300 hover:text-white px-4 py-2 rounded-full flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-left"></i> В меню
+                    </button>
+
+                    <div class="flex items-center gap-3">
+                        <span id="subject-badge" class="px-4 py-1.5 rounded-full text-xs font-headline font-bold uppercase tracking-wider bg-neonPink text-white shadow-lg">
+                            Предмет
+                        </span>
+                        <div class="text-xs font-bold text-slate-300">
+                            Вопрос <span id="current-q-num" class="text-neonYellow font-headline text-base">1</span> / <span id="total-q-num">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-8 p-0.5 border border-white/10">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-neonYellow via-neonPink to-neonCyan rounded-full transition-all duration-500 w-0"></div>
+                </div>
+
+                <!-- Question Text Block -->
+                <div class="mb-8 min-h-[100px] flex items-center">
+                    <h3 id="question-text" class="font-headline font-bold text-xl sm:text-3xl text-white leading-snug">
+                        Загрузка вопроса...
+                    </h3>
+                </div>
+
+                <!-- Answer Options -->
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <!-- Explanation Banner -->
+                <div id="feedback-box" class="hidden rounded-2xl p-4 mb-6 transition-all border animate-bounce-pop">
+                    <div class="flex items-start gap-3">
+                        <div id="feedback-icon" class="text-3xl mt-0.5"></div>
+                        <div>
+                            <h4 id="feedback-title" class="font-headline font-bold text-base sm:text-lg mb-1"></h4>
+                            <p id="feedback-text" class="text-sm opacity-90 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Button -->
+                <div class="flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden glass-btn bg-gradient-to-r from-neonPink to-neonPurple hover:from-neonPurple hover:to-neonPink text-white font-headline font-bold px-8 py-4 rounded-2xl text-base sm:text-lg flex items-center gap-3 shadow-xl animate-bounce-slow">
+                        <span>Дальше</span>
+                        <i class="fa-solid fa-arrow-right-long"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. RESULTS SCREEN -->
+        <section id="result-screen" class="w-full hidden transition-all duration-500">
+            <div class="glass-panel rounded-3xl p-8 sm:p-12 text-center max-w-xl mx-auto relative overflow-hidden animate-bounce-pop">
+                
+                <div id="result-emoji" class="text-7xl mb-4 animate-bounce-slow">🎉</div>
+                
+                <div id="result-badge" class="inline-block px-4 py-1.5 rounded-full bg-neonGreen/20 border border-neonGreen/40 text-neonGreen text-xs font-headline font-bold uppercase tracking-wider mb-3">
+                    Гений школы 🧠
+                </div>
+                
+                <h2 id="result-title" class="font-headline font-black text-3xl sm:text-4xl text-white mb-2">
+                    Потрясающе!
+                </h2>
+                <p id="result-subtitle" class="text-slate-300 text-sm sm:text-base mb-8">
+                    Ты показали невероятный результат!
+                </p>
+
+                <!-- Result Stats Board -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 grid grid-cols-3 gap-3">
+                    <div class="p-2">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Вопросов</div>
+                        <div id="res-total" class="font-headline font-black text-2xl text-white">5</div>
+                    </div>
+                    <div class="p-2 border-x border-white/10">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Правильно</div>
+                        <div id="res-correct" class="font-headline font-black text-2xl text-neonGreen">0</div>
+                    </div>
+                    <div class="p-2">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Очки</div>
+                        <div id="res-score" class="font-headline font-black text-2xl text-neonYellow">+0</div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onclick="retryQuiz()" class="w-full sm:w-auto glass-btn font-bold px-6 py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Ещё раз
+                    </button>
+                    <button onclick="shareResult()" class="w-full sm:w-auto glass-btn border-neonCyan/40 text-neonCyan font-bold px-6 py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-share-nodes"></i> Поделиться
+                    </button>
+                    <button onclick="showCategoryScreen()" class="w-full sm:w-auto bg-gradient-to-r from-neonPink to-neonPurple hover:scale-105 text-white font-headline font-bold px-8 py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg transition-transform">
+                        <i class="fa-solid fa-house"></i> В меню
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 p-4 text-center text-xs text-slate-400 border-t border-white/5 glass-panel mt-auto">
+        <p>© 2026 Школьный Бум — Заряжай мозги по полной! ⚡</p>
+    </footer>
+
+    <!-- SCRIPT & QUIZ LOGIC -->
+    <script>
+        // --- QUIZ QUESTIONS DATABASE ---
+        const quizData = {
+            math: {
+                title: "Математика",
+                badgeClass: "bg-indigo-600 text-white",
+                questions: [
+                    {
+                        question: "Чему равен корень квадратный из 144?",
+                        options: ["10", "12", "14", "16"],
+                        correct: 1,
+                        explanation: "12 × 12 = 144. Отличная работа!"
+                    },
+                    {
+                        question: "Как называется отрезок, соединяющий две точки окружности и проходящий через её центр?",
+                        options: ["Радиус", "Хорда", "Диаметр", "Катет"],
+                        correct: 2,
+                        explanation: "Диаметр проходит точно через центр и в 2 раза длиннее радиуса."
+                    },
+                    {
+                        question: "Чему равна сумма всех углов любого треугольника?",
+                        options: ["90°", "180°", "270°", "360°"],
+                        correct: 1,
+                        explanation: "В евклидовой геометрии сумма углов всегда равна 180 градусам!"
+                    },
+                    {
+                        question: "Реши простое уравнение: 4x - 8 = 16. Чему равен x?",
+                        options: ["4", "5", "6", "8"],
+                        correct: 2,
+                        explanation: "4x = 24 => x = 6. Изи катка!"
+                    },
+                    {
+                        question: "Какое наименьшее простое число?",
+                        options: ["0", "1", "2", "3"],
+                        correct: 2,
+                        explanation: "Двойка — единственное четное простое число и самое первое из них."
+                    }
+                ]
+            },
+            science: {
+                title: "Естествознание",
+                badgeClass: "bg-emerald-500 text-slate-950",
+                questions: [
+                    {
+                        question: "Какая химическая формула у чистой воды?",
+                        options: ["CO2", "H2O", "O2", "NaCl"],
+                        correct: 1,
+                        explanation: "H2O — два атома водорода и один атом кислорода!"
+                    },
+                    {
+                        question: "Какая планета самая крупная в Солнечной системе?",
+                        options: ["Марс", "Сатурн", "Юпитер", "Нептун"],
+                        correct: 2,
+                        explanation: "Юпитер — гигант, превосходящий Землю по диаметру в 11 раз!"
+                    },
+                    {
+                        question: "Какой пигмент делает листья растений зелеными?",
+                        options: ["Меланин", "Хлорофилл", "Каротин", "Гемоглобин"],
+                        correct: 1,
+                        explanation: "Хлорофилл поглощает свет и участвует в процессе фотосинтеза."
+                    },
+                    {
+                        question: "Сколько состояний вещества в классической физике (без плазмы)?",
+                        options: ["2", "3", "4", "5"],
+                        correct: 1,
+                        explanation: "Три основных: твёрдое, жидкое и газообразное."
+                    },
+                    {
+                        question: "С какой скоростью распространяется свет в вакууме?",
+                        options: ["300 000 км/с", "150 000 км/с", "30 000 км/с", "1 000 000 км/с"],
+                        correct: 0,
+                        explanation: "Свет несется со скоростью почти 300 тысяч километров в секунду!"
+                    }
+                ]
+            },
+            history: {
+                title: "История",
+                badgeClass: "bg-amber-500 text-slate-950",
+                questions: [
+                    {
+                        question: "В какой стране находится древний комплекс пирамид в Гизе?",
+                        options: ["Греция", "Египет", "Италия", "Мексика"],
+                        correct: 1,
+                        explanation: "Египетские пирамиды — одно из древнейших чудес света."
+                    },
+                    {
+                        question: "Кто совершил первый в истории человечества полет в космос в 1961 году?",
+                        options: ["Нил Армстронг", "Юрий Гагарин", "Алексей Леонов", "Илон Маск"],
+                        correct: 1,
+                        explanation: "Юрий Гагарин сказал знаменитое «Поехали!» 12 апреля 1961 года."
+                    },
+                    {
+                        question: "Как называлось сословие конных воинов в средневековой Европе?",
+                        options: ["Самураи", "Рыцари", "Гладиаторы", "Викинги"],
+                        correct: 1,
+                        explanation: "Рыцари носили тяжелые доспехи и сражались на турнирах!"
+                    },
+                    {
+                        question: "В каком году началась Первая мировая война?",
+                        options: ["1914", "1939", "1905", "1917"],
+                        correct: 0,
+                        explanation: "Первая мировая война вспыхнула летом 1914 года."
+                    },
+                    {
+                        question: "Великий карфагенский полководец, перешедший Альпы со боевыми слонами:",
+                        options: ["Юлий Цезарь", "Ганнибал", "Александр Македонский", "Спартак"],
+                        correct: 1,
+                        explanation: "Ганнибал Барка совершил беспрецедентный переход через заснеженные Альпы."
+                    }
+                ]
+            },
+            literature: {
+                title: "Литература",
+                badgeClass: "bg-rose-500 text-white",
+                questions: [
+                    {
+                        question: "Кто написал культовый роман в стихах «Евгений Онегин»?",
+                        options: ["М. Лермонтов", "А. Пушкин", "Н. Гоголь", "Л. Толстой"],
+                        correct: 1,
+                        explanation: "Александр Сергеевич Пушкин — гений русской литературы!"
+                    },
+                    {
+                        question: "У какого деревянного персонажа рос нос, когда он говорил неправду?",
+                        options: ["Чиполлино", "Пиноккио / Буратино", "Незнайка", "Карлсон"],
+                        correct: 1,
+                        explanation: "Нос увеличивался с каждой сказанной ложью!"
+                    },
+                    {
+                        question: "Кто создал образ гениального сыщика Шерлока Холмса?",
+                        options: ["Агата Кристи", "Артур Конан Дойл", "Жюль Верн", "Марк Твен"],
+                        correct: 1,
+                        explanation: "Сэр Артур Конан Дойл подарил миру великого детектива."
+                    },
+                    {
+                        question: "Какое из этих произведений написал И. А. Крылов?",
+                        options: ["«Ворона и Лисица»", "«Бородино»", "«Мцыри»", "«Кавказский пленник»"],
+                        correct: 0,
+                        explanation: "Басня «Ворона и Лисица» знакомит нас с хитростью и лестью!"
+                    },
+                    {
+                        question: "Как назывался корабль с алыми парусами в повести А. Грина?",
+                        options: ["«Чёрная Жемчужина»", "«Секрет»", "«Надежда»", "«Аврора»"],
+                        correct: 1,
+                        explanation: "Галиот капитана Грея носил романтичное название «Секрет»."
+                    }
+                ]
+            },
+            geography: {
+                title: "География",
+                badgeClass: "bg-sky-500 text-white",
+                questions: [
+                    {
+                        question: "Какая река самая полноводная и длинная на Земле?",
+                        options: ["Нил", "Амазонка", "Миссисипи", "Волга"],
+                        correct: 1,
+                        explanation: "Амазонка в Южной Америке несёт больше всего воды в мире."
+                    },
+                    {
+                        question: "Столицей какого государства является город Токио?",
+                        options: ["Китай", "Южная Корея", "Япония", "Таиланд"],
+                        correct: 2,
+                        explanation: "Токио — невероятный технологичный мегаполис и столица Японии."
+                    },
+                    {
+                        question: "Самый холодный материк, покрытый толстым слоем льда:",
+                        options: ["Австралия", "Антарктида", "Гренландия", "Северная Америка"],
+                        correct: 1,
+                        explanation: "Антарктида держит все рекорды низких температур!"
+                    },
+                    {
+                        question: "Какое озеро считается самым глубоким в мире?",
+                        options: ["Байкал", "Каспийское море", "Виктория", "Мичиган"],
+                        correct: 0,
+                        explanation: "Байкал — глубина достигает 1642 метров!"
+                    },
+                    {
+                        question: "В какой стране находится древний город Майя — Чичен-Ица?",
+                        options: ["Бразилия", "Мексика", "Перу", "Египет"],
+                        correct: 1,
+                        explanation: "Знаменитая пирамида Кукулькана находится в Мексике."
+                    }
+                ]
+            }
+        };
+
+        // --- APP STATE ---
+        let currentSubjectKey = null;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userScore = 0;
+        let currentStreak = 0;
+        let totalScore = 0;
+        let isAnswered = false;
+        let soundEnabled = true;
+
+        // --- WEB AUDIO API SOUND GENERATOR ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(260, now);
+                    osc.frequency.exponentialRampToValueAtTime(130, now + 0.25);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'win') {
+                    // Win Fanfare chord
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.12, now + i * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.3);
+                        o.start(now + i * 0.08);
+                        o.stop(now + i * 0.08 + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio Error:", e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            if (soundEnabled) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                btn.classList.remove('opacity-40');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+                btn.classList.add('opacity-40');
+            }
+        }
+
+        // --- NAVIGATION HANDLERS ---
+        const categoryScreen = document.getElementById('category-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        function showCategoryScreen() {
+            playSound('click');
+            categoryScreen.classList.remove('hidden');
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+        }
+
+        function startQuiz(subjectKey) {
+            playSound('click');
+            currentSubjectKey = subjectKey;
+            currentQuestionIndex = 0;
+            userScore = 0;
+
+            if (subjectKey === 'mix') {
+                let allQs = [];
+                Object.keys(quizData).forEach(key => {
+                    quizData[key].questions.forEach(q => {
+                        allQs.push({ ...q, subjectTitle: quizData[key].title });
+                    });
+                });
+                currentQuestions = allQs.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+                const badge = document.getElementById('subject-badge');
+                badge.innerText = "Сверхскоростной МИКС 🔥";
+                badge.className = "px-4 py-1.5 rounded-full text-xs font-headline font-bold uppercase tracking-wider bg-gradient-to-r from-neonPink to-neonCyan text-white shadow-lg";
+            } else {
+                const sub = quizData[subjectKey];
+                currentQuestions = [...sub.questions];
+
+                const badge = document.getElementById('subject-badge');
+                badge.innerText = sub.title;
+                badge.className = `px-4 py-1.5 rounded-full text-xs font-headline font-bold uppercase tracking-wider ${sub.badgeClass} shadow-lg`;
+            }
+
+            categoryScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswered = false;
+            const q = currentQuestions[currentQuestionIndex];
+
+            document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('total-q-num').innerText = currentQuestions.length;
+
+            // Update Progress Bar
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            document.getElementById('question-text').innerText = q.question;
+
+            // Hide Feedback and Next Button
+            document.getElementById('feedback-box').className = "hidden rounded-2xl p-4 mb-6 transition-all border animate-bounce-pop";
+            document.getElementById('next-btn').classList.add('hidden');
+
+            // Render Options Buttons
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => checkAnswer(index);
+                btn.className = "glass-btn w-full p-4 rounded-2xl text-left font-bold text-white flex items-center gap-4 group transition-all border border-white/10 hover:border-neonCyan/50";
+
+                btn.innerHTML = `
+                    <span class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-neonCyan group-hover:text-slate-950 text-neonCyan font-headline flex items-center justify-center font-bold text-sm transition-all flex-shrink-0">
+                        ${optionLetters[index]}
+                    </span>
+                    <span class="text-sm sm:text-base flex-grow">${optText}</span>
+                    <i class="fa-solid fa-circle-check text-xl opacity-0 group-hover:opacity-40 transition-opacity"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.correct);
+            const container = document.getElementById('options-container');
+            const buttons = container.querySelectorAll('button');
+
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('glass-btn', 'hover:border-neonCyan/50');
+
+                if (idx === q.correct) {
+                    btn.className = "w-full bg-neonGreen/20 border-2 border-neonGreen p-4 rounded-2xl text-left font-bold text-white flex items-center gap-4 shadow-lg animate-bounce-pop";
+                    btn.querySelector('span').className = "w-10 h-10 rounded-xl bg-neonGreen text-slate-950 font-headline flex items-center justify-center font-bold text-sm";
+                    btn.querySelector('i').className = "fa-solid fa-circle-check text-xl text-neonGreen opacity-100";
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.className = "w-full bg-neonPink/20 border-2 border-neonPink p-4 rounded-2xl text-left font-bold text-white flex items-center gap-4 animate-shake";
+                    btn.querySelector('span').className = "w-10 h-10 rounded-xl bg-neonPink text-white font-headline flex items-center justify-center font-bold text-sm";
+                    btn.querySelector('i').className = "fa-solid fa-circle-xmark text-xl text-neonPink opacity-100";
+                } else {
+                    btn.classList.add('opacity-30');
+                }
+            });
+
+            if (isCorrect) {
+                userScore++;
+                currentStreak++;
+                totalScore += 10 + (currentStreak * 5);
+                playSound('correct');
+
+                feedbackBox.className = "rounded-2xl p-4 mb-6 transition-all bg-neonGreen/10 border border-neonGreen/40 text-emerald-200 block animate-bounce-pop";
+                feedbackIcon.innerHTML = '🎯';
+                feedbackTitle.innerText = "ТОЧНО В ЦЕЛЬ! 🚀";
+                feedbackTitle.className = "font-headline font-bold text-base sm:text-lg mb-1 text-neonGreen";
+            } else {
+                currentStreak = 0;
+                playSound('wrong');
+
+                feedbackBox.className = "rounded-2xl p-4 mb-6 transition-all bg-neonPink/10 border border-neonPink/40 text-pink-200 block animate-bounce-pop";
+                feedbackIcon.innerHTML = '💥';
+                feedbackTitle.innerText = "МИМО! В СЛЕДУЮЩИЙ РАЗ ПОВЕЗЕТ!";
+                feedbackTitle.className = "font-headline font-bold text-base sm:text-lg mb-1 text-neonPink";
+            }
+
+            feedbackText.innerText = q.explanation;
+            updateHeaderStats();
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('total-score').innerText = totalScore;
+            document.getElementById('streak-count').innerText = currentStreak;
+
+            const streakBox = document.getElementById('header-streak-box');
+            if (currentStreak >= 3) {
+                streakBox.classList.remove('hidden');
+                streakBox.classList.add('flex', 'animate-pulse');
+            } else if (currentStreak === 0) {
+                streakBox.classList.add('hidden');
+                streakBox.classList.remove('flex');
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const total = currentQuestions.length;
+            const percent = (userScore / total) * 100;
+
+            document.getElementById('res-total').innerText = total;
+            document.getElementById('res-correct').innerText = userScore;
+            document.getElementById('res-score').innerText = `+${userScore * 10}`;
+
+            const emojiEl = document.getElementById('result-emoji');
+            const badgeEl = document.getElementById('result-badge');
+            const titleEl = document.getElementById('result-title');
+            const subtitleEl = document.getElementById('result-subtitle');
+
+            if (percent === 100) {
+                emojiEl.innerText = "👑";
+                badgeEl.innerText = "ГЕНИЙ ШКОЛЫ 🧠⚡";
+                badgeEl.className = "inline-block px-4 py-1.5 rounded-full bg-neonYellow/20 border border-neonYellow/50 text-neonYellow text-xs font-headline font-bold uppercase tracking-wider mb-3";
+                titleEl.innerText = "100% АБСОЛЮТНЫЙ РЕКОРД!";
+                subtitleEl.innerText = "Ты ответил идеально на все вопросы! Настоящая суперзвезда!";
+                launchConfetti();
+                playSound('win');
+            } else if (percent >= 60) {
+                emojiEl.innerText = "🔥";
+                badgeEl.innerText = "ЗНАТОК ПРЕДМЕТА ✨";
+                badgeEl.className = "inline-block px-4 py-1.5 rounded-full bg-neonGreen/20 border border-neonGreen/50 text-neonGreen text-xs font-headline font-bold uppercase tracking-wider mb-3";
+                titleEl.innerText = "КРУТОЙ РЕЗУЛЬТАТ!";
+                subtitleEl.innerText = "Ты отлично разбираешься в теме! Еще немного и будет идиал!";
+                launchConfetti();
+                playSound('win');
+            } else {
+                emojiEl.innerText = "🚀";
+                badgeEl.innerText = "ПРОБУЙ ЕЩЕ ⚡";
+                badgeEl.className = "inline-block px-4 py-1.5 rounded-full bg-neonCyan/20 border border-neonCyan/50 text-neonCyan text-xs font-headline font-bold uppercase tracking-wider mb-3";
+                titleEl.innerText = "ХОРОШАЯ ПОПЫТКА!";
+                subtitleEl.innerText = "Пробегись по материалам и возвращайся за победой!";
+            }
+        }
+
+        function retryQuiz() {
+            startQuiz(currentSubjectKey);
+        }
+
+        function shareResult() {
+            playSound('click');
+            const shareText = `Я набрал ${userScore} из 5 в викторине «Школьный Бум»! Попробуй и ты! ⚡`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText);
+                alert("Результат скопирован в буфер обмена! 🚀");
+            } else {
+                alert(shareText);
+            }
+        }
+
+        // --- CONFETTI LAUNCHER ---
+        function launchConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#FF007A', '#7B2CBF', '#00F0FF', '#00FF66', '#FFE600']
+                });
+            }
+        }
+
+        // Init
+        updateHeaderStats();
+    </script>
+</body>
+</html>
